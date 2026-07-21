@@ -1128,7 +1128,7 @@
         addons: { fotos: true, musicos: true },
         build: d => ({
           title: 'Gravação de Áudio',
-          items: [ {nm: 'Captação de áudio', price: price.audio[d]} ]
+          items: [ {nm: 'Captação de áudio', price: price.audio[d], per: 'hora'} ]
         })
       },
       audio_clipe: {
@@ -1137,7 +1137,7 @@
         build: d => ({
           title: 'Áudio + Videoclipe',
           items: [
-            {nm: 'Captação de áudio', price: price.audio[d]},
+            {nm: 'Captação de áudio', price: price.audio[d], per: 'hora'},
             {nm: 'Videoclipe · câmera profissional + edição', price: price.clipe, note: 'Em até 10x sem juros'}
           ]
         })
@@ -1363,7 +1363,7 @@
       } else {
         L.push('• Dia: ' + dayLabel(current.day));
       }
-      if (c.hasHora)      L.push('• Horas de ensaio: ' + c.horas + 'h');
+      if (c.hasHora)      L.push('• Horas de ' + ((current.key === 'audio' || current.key === 'audio_clipe') ? 'gravação' : 'ensaio') + ': ' + c.horas + 'h');
       if (sel.length > 0) L.push('• Músicos: ' + sel.map(m => m.nm).join(', ') + ' (' + sel.length + 'x R$ 180,00 = ' + brl(price.musico * sel.length) + ')');
       if (current.fotos)  L.push('• Fotos profissionais: sim (o valor será dito na negociação)');
       L.push('• Total estimado: ' + brl(c.total) + (current.fotos ? ' + fotos (valor na negociação)' : ''));
@@ -1430,9 +1430,10 @@
       const r = s.build(current.day);
 
       const hasHoraItem = r.items.some(it => it.per === 'hora');
+      const ehGravacao = (current.key === 'audio' || current.key === 'audio_clipe');
       const horasBlock = hasHoraItem
-        ? '<div class="assist-addon" style="margin-bottom:16px; border-color:rgba(232,51,110,0.35);"><div><div class="a-nm">⏱️ Horas de ensaio</div>'
-          + '<div class="a-ds">Quanto tempo de sala você quer</div></div>'
+        ? '<div class="assist-addon" style="margin-bottom:16px; border-color:rgba(232,51,110,0.35);"><div><div class="a-nm">⏱️ Horas de ' + (ehGravacao ? 'gravação' : 'ensaio') + '</div>'
+          + '<div class="a-ds">' + (ehGravacao ? 'Quanto tempo de gravação você quer' : 'Quanto tempo de sala você quer') + '</div></div>'
           + '<div class="a-step"><button type="button" id="horaMinus" aria-label="Menos uma hora">−</button>'
           + '<span class="a-count" id="horaCount">' + current.horas + '</span>'
           + '<button type="button" id="horaPlus" aria-label="Mais uma hora">+</button></div></div>'
