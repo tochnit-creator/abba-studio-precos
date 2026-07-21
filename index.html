@@ -717,6 +717,19 @@
   .assist-day-hint.blocked {
     color: #ff6b6b; background: rgba(255,80,80,0.10); border-color: rgba(255,80,80,0.35);
   }
+  /* tabela de referência de valores (Seg-Qui x Sex-Dom) */
+  .assist-ref {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(232,51,110,0.2);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 18px;
+  }
+  .assist-ref-title { font-size: .7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+  .assist-ref-table { width: 100%; border-collapse: collapse; }
+  .assist-ref-table th { text-align: right; font-size: .66rem; text-transform: uppercase; letter-spacing: 1px; color: var(--pink-light); font-weight: 700; padding: 0 0 6px; }
+  .assist-ref-table th:first-child { text-align: left; }
+  .assist-ref-table td { padding: 7px 0; border-top: 1px dashed rgba(255,255,255,0.08); font-size: .85rem; }
+  .assist-ref-table td:first-child { color: #fff; font-weight: 600; }
+  .assist-ref-table td:not(:first-child) { text-align: right; font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: .5px; color: var(--pink-light); white-space: nowrap; }
+  .assist-ref-note { font-size: .74rem; color: var(--gray); margin-top: 8px; }
   .assist-continue {
     flex: 1; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     background: var(--pink); color: #fff; padding: 15px 20px; border: none; border-radius: 12px;
@@ -1218,10 +1231,31 @@
 
     function renderStep2() {
       const s = services[current.key];
+
+      // tabela de referência: valores Seg-Qui x Sex-Dom
+      const itA = s.build('segqui').items, itB = s.build('sexdom').items;
+      let refRows = '', refNotes = [];
+      itA.forEach((it, i) => {
+        const jt = itB[i];
+        const u = it.per === 'hora' ? '/h' : '';
+        if (it.price !== jt.price) {
+          refRows += '<tr><td>' + it.nm + '</td><td>' + brl(it.price) + u + '</td><td>' + brl(jt.price) + u + '</td></tr>';
+        } else {
+          refNotes.push(it.nm + ': ' + brl(it.price) + u + ' (fixo)');
+        }
+      });
+      const refTable = refRows
+        ? '<div class="assist-ref"><div class="assist-ref-title">💰 Valores deste serviço</div>'
+          + '<table class="assist-ref-table"><tr><th></th><th>Seg a Qui</th><th>Sex a Dom</th></tr>' + refRows + '</table>'
+          + (refNotes.length ? '<div class="assist-ref-note">+ ' + refNotes.join(' · ') + '</div>' : '')
+          + '</div>'
+        : '';
+
       body.innerHTML = '<div class="assist-step">'
         + '<div class="assist-eyebrow">' + s.emoji + ' ' + s.nm + '</div>'
         + '<h2 class="assist-title" id="assistTitle">Quando você <span>quer?</span></h2>'
         + '<p class="assist-sub">Escolha o dia e a partir de que horário — assim já mando tudo pronto no WhatsApp.</p>'
+        + refTable
         + '<div class="assist-name"><label>Dia desejado <span class="req">*</span></label>'
         +   '<input type="date" id="dtData" min="' + todayStr() + '" value="' + (current.data || '') + '"></div>'
         + '<div class="assist-name"><label>A partir de que horário <span class="req">*</span></label>'
