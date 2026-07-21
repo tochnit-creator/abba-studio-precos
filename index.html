@@ -1525,6 +1525,76 @@
   <span class="af-ic">✨</span>
   <span class="af-tx">Monte seu orçamento</span>
 </button>
-
+<!-- ═══ ORÇAMENTO EM PDF — Estúdio Abba ═══ -->
+<script>
+(function(){
+  var JSPDF_URL='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', ready=null;
+  function loadJsPDF(){
+    if(window.jspdf&&window.jspdf.jsPDF) return Promise.resolve();
+    if(ready) return ready;
+    ready=new Promise(function(res,rej){var s=document.createElement('script');s.src=JSPDF_URL;s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    return ready;
+  }
+  function parseData(){
+    var wa=document.getElementById('assistWaLink'); if(!wa) return null;
+    var m=(wa.getAttribute('href')||'').split('text=')[1], txt='';
+    if(m){ try{txt=decodeURIComponent(m);}catch(e){txt=m;} }
+    var nome=''; var nm=txt.match(/Meu nome é ([^.]+)\./); if(nm) nome=nm[1].trim();
+    var ni=document.getElementById('assistNome'); if(ni&&ni.value.trim()) nome=ni.value.trim();
+    var linhas=[];
+    txt.split('\n').forEach(function(l){
+      l=l.trim();
+      if(l.charAt(0)==='•'){ var b=l.replace(/^•\s*/,''); var i=b.indexOf(': ');
+        linhas.push(i>-1?[b.slice(0,i),b.slice(i+2)]:['',b]); }
+    });
+    return {nome:nome, linhas:linhas};
+  }
+  function gerarPDF(){
+    var d=parseData(); if(!d) return;
+    loadJsPDF().then(function(){
+      var jsPDF=window.jspdf.jsPDF, doc=new jsPDF({unit:'mm',format:'a4'}), W=210,H=297;
+      doc.setFillColor(13,13,13); doc.rect(0,0,W,H,'F');
+      doc.setFillColor(232,51,110); doc.rect(0,0,W,40,'F');
+      doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(24);
+      doc.text('ESTÚDIO ABBA',16,21);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+      doc.text('Mauá — São Paulo · Ensaio · Gravação · Videoclipe',16,29);
+      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text('ORÇAMENTO',W-16,20,{align:'right'});
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+      doc.text('Emitido em '+new Date().toLocaleDateString('pt-BR'),W-16,27,{align:'right'});
+      var y=56; doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+      doc.text('Cliente: '+(d.nome||'—'),16,y); y+=12;
+      var total=''; var rows=d.linhas.filter(function(p){ if(/total/i.test(p[0])){total=p[1];return false;} return true; });
+      doc.setDrawColor(232,51,110); doc.setLineWidth(0.5); doc.line(16,y,W-16,y); y+=9;
+      rows.forEach(function(p){
+        doc.setTextColor(180,180,180); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+        doc.text((p[0]||'').toUpperCase(),16,y);
+        doc.setTextColor(255,255,255); doc.setFont('helvetica','normal'); doc.setFontSize(11.5);
+        var val=doc.splitTextToSize(p[1]||'',W-32); doc.text(val,16,y+6);
+        y+=6+(val.length*6)+4; doc.setDrawColor(40,40,40); doc.setLineWidth(0.2); doc.line(16,y-3,W-16,y-3);
+      });
+      y+=4; doc.setFillColor(232,51,110); doc.roundedRect(16,y,W-32,18,2,2,'F');
+      doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+      doc.text('TOTAL ESTIMADO',22,y+11); doc.setFontSize(16); doc.text(total||'—',W-22,y+11.5,{align:'right'});
+      var fy=H-24; doc.setDrawColor(60,60,60); doc.setLineWidth(0.2); doc.line(16,fy,W-16,fy);
+      doc.setTextColor(150,150,150); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+      doc.text('Valores sujeitos à confirmação de disponibilidade.',16,fy+7);
+      doc.text('WhatsApp: (11) 94580-7217  ·  Estúdio Abba — Mauá/SP',16,fy+13);
+      doc.save('orcamento-estudio-abba'+(d.nome?'-'+d.nome.replace(/\s+/g,'-').toLowerCase():'')+'.pdf');
+    }).catch(function(){ alert('Não foi possível gerar o PDF agora. Verifique a conexão e tente de novo.'); });
+  }
+  function ensureButton(){
+    var wa=document.getElementById('assistWaLink'); if(!wa) return;
+    if(document.getElementById('pdfBtnAbba')) return;
+    var b=document.createElement('button'); b.id='pdfBtnAbba'; b.type='button';
+    b.textContent='📄 Baixar orçamento (PDF)';
+    b.style.cssText='flex:1;min-width:180px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:#fff;border:1px solid #e8336e;padding:14px 18px;border-radius:12px;font-weight:700;font-size:.9rem;cursor:pointer;font-family:inherit;';
+    b.onmouseover=function(){b.style.background='rgba(232,51,110,0.14)';};
+    b.onmouseout=function(){b.style.background='transparent';};
+    b.onclick=function(){ if(wa.classList.contains('disabled')){alert('Preencha seu nome para gerar o PDF.');return;} gerarPDF(); };
+    wa.parentNode.insertBefore(b,wa.nextSibling);
+  }
+  var mo=new MutationObserver(function(){ensureButton();});
+  function start(){ var bd=document.getElementById('assistBody');
 </body>
 </html>
