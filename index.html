@@ -1595,6 +1595,9 @@
     wa.parentNode.insertBefore(b,wa.nextSibling);
   }
   var mo=new MutationObserver(function(){ensureButton();});
-  function start(){ var bd=document.getElementById('assistBody');
+  function start(){ var bd=document.getElementById('assistBody'); if(bd) mo.observe(bd,{childList:true,subtree:true}); ensureButton(); }
+  if(document.readyState!=='loading') start(); else document.addEventListener('DOMContentLoaded',start);
+})();
+</script>
 </body>
 </html>
