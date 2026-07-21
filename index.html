@@ -708,23 +708,14 @@
   @media (prefers-reduced-motion: reduce) {
     .assist-overlay, .assist-modal, .assist-step, .assist-float { transition: none; animation: none; }
   }
-  /* passo de data/horário + calendário dentro do assistente */
-  .assist-cal-toggle {
-    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
-    background: rgba(232,51,110,0.1); border: 1px solid rgba(232,51,110,0.3); color: #fff;
-    padding: 11px 16px; border-radius: 10px; font-weight: 600; font-size: .85rem; margin-bottom: 16px; transition: .2s;
-  }
-  .assist-cal-toggle:hover { background: rgba(232,51,110,0.18); border-color: var(--pink); }
-  .assist-cal-toggle.open { background: var(--pink); border-color: var(--pink); }
-  .assist-cal {
-    height: 380px; margin-bottom: 18px; border-radius: 12px; overflow: hidden;
-    border: 1px solid rgba(232,51,110,0.25); background: #0d0d0d;
-  }
-  .assist-cal iframe { display: block; border: 0; width: 100%; height: 100%; }
+  /* passo de data/horário */
   .assist-name input[type="date"], .assist-name input[type="time"] { color-scheme: dark; }
   .assist-day-hint {
     font-size: .82rem; color: var(--pink-light); margin: -4px 0 14px; padding: 10px 14px;
     background: rgba(232,51,110,0.08); border-radius: 10px; border: 1px solid rgba(232,51,110,0.2);
+  }
+  .assist-day-hint.blocked {
+    color: #ff6b6b; background: rgba(255,80,80,0.10); border-color: rgba(255,80,80,0.35);
   }
   .assist-continue {
     flex: 1; min-width: 160px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -1213,16 +1204,24 @@
     function fmtDay(dateStr) {
       return new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
     }
-    const CAL_SRC = 'https://app.groupcal.app/calendar/e877a13f42705b23a0441ac0c4d0a1b9?view=CALENDAR_RANGE/MONTH&showHeader=0&themeMode=dark&calendarTitle=agendas%20abba%20studio&removeBranding=0&firstDayOfWeek=1&preview=1';
+    // ═══ DIAS OCUPADOS — EDITE AQUI ═══
+    // diasSemana: 0=domingo, 1=segunda, 2=terça, 3=quarta, 4=quinta, 5=sexta, 6=sábado
+    // datas: datas específicas ocupadas, formato 'AAAA-MM-DD'
+    const OCUPADO = {
+      diasSemana: [1],   // exemplo: toda segunda-feira ocupada
+      datas: []          // exemplo: ['2026-08-15', '2026-12-25']
+    };
+    function diaOcupado(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return OCUPADO.diasSemana.indexOf(d.getDay()) !== -1 || OCUPADO.datas.indexOf(dateStr) !== -1;
+    }
 
     function renderStep2() {
       const s = services[current.key];
       body.innerHTML = '<div class="assist-step">'
         + '<div class="assist-eyebrow">' + s.emoji + ' ' + s.nm + '</div>'
         + '<h2 class="assist-title" id="assistTitle">Quando você <span>quer?</span></h2>'
-        + '<p class="assist-sub">Escolha o dia e a partir de que horário. Veja a disponibilidade antes de decidir — assim já mando tudo pronto no WhatsApp.</p>'
-        + '<button type="button" class="assist-cal-toggle" id="calToggle">📅 Ver disponibilidade</button>'
-        + '<div class="assist-cal" id="calBox" style="display:none;"><iframe id="calFrame" data-src="' + CAL_SRC + '" title="Disponibilidade do estúdio"></iframe></div>'
+        + '<p class="assist-sub">Escolha o dia e a partir de que horário — assim já mando tudo pronto no WhatsApp.</p>'
         + '<div class="assist-name"><label>Dia desejado <span class="req">*</span></label>'
         +   '<input type="date" id="dtData" min="' + todayStr() + '" value="' + (current.data || '') + '"></div>'
         + '<div class="assist-name"><label>A partir de que horário <span class="req">*</span></label>'
@@ -1234,17 +1233,6 @@
         + '</div></div>';
 
       const bk = document.getElementById('assistBk'); if (bk) bk.onclick = renderStep1;
-
-      const calToggle = document.getElementById('calToggle');
-      const calBox = document.getElementById('calBox');
-      const calFrame = document.getElementById('calFrame');
-      if (calToggle) calToggle.onclick = () => {
-        const opening = calBox.style.display === 'none';
-        calBox.style.display = opening ? 'block' : 'none';
-        calToggle.classList.toggle('open', opening);
-        if (opening && !calFrame.src) calFrame.src = calFrame.dataset.src;
-      };
-
       const dtData = document.getElementById('dtData');
       const dtHora = document.getElementById('dtHora');
       const hint = document.getElementById('dayHint');
@@ -1253,19 +1241,28 @@
       function refreshStep2() {
         current.data = dtData ? dtData.value : '';
         current.hora = dtHora ? dtHora.value : '';
+        let ok = false;
         if (current.data) {
-          current.day = bracketOf(current.data);
           hint.style.display = 'block';
-          hint.innerHTML = '📌 ' + fmtDay(current.data) + ' — faixa <b>' + (current.day === 'segqui' ? 'Seg a Qui' : 'Sex a Dom') + '</b>';
+          if (diaOcupado(current.data)) {
+            current.day = null;
+            hint.className = 'assist-day-hint blocked';
+            hint.innerHTML = '🚫 ' + fmtDay(current.data) + ' já está <b>ocupado</b>. Escolha outra data.';
+          } else {
+            current.day = bracketOf(current.data);
+            hint.className = 'assist-day-hint';
+            hint.innerHTML = '✅ ' + fmtDay(current.data) + ' — faixa <b>' + (current.day === 'segqui' ? 'Seg a Qui' : 'Sex a Dom') + '</b>';
+            ok = true;
+          }
         } else {
           current.day = null;
           hint.style.display = 'none';
         }
-        cont.classList.toggle('disabled', !(current.data && current.hora));
+        cont.classList.toggle('disabled', !(ok && current.hora));
       }
       if (dtData) dtData.onchange = refreshStep2;
       if (dtHora) dtHora.onchange = refreshStep2;
-      if (cont) cont.onclick = () => { if (current.data && current.hora) renderResult(); };
+      if (cont) cont.onclick = () => { if (current.data && current.hora && !diaOcupado(current.data)) renderResult(); };
       refreshStep2();
     }
 
