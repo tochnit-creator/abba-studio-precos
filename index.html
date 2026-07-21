@@ -636,24 +636,59 @@
   .assist-name-hint { font-size: .74rem; color: var(--pink-light); margin-top: 8px; }
   .assist-wa.disabled { opacity: .4; pointer-events: none; filter: grayscale(.4); }
 
+  /* opção "Outros" em largura total + textarea */
+  .assist-opt.wide { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 12px; }
+  .assist-opt.wide .ic { font-size: 1.5rem; }
+  .assist-textarea {
+    width: 100%; min-height: 96px; resize: vertical;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(232,51,110,0.25);
+    border-radius: 12px; padding: 14px 16px; color: #fff; font-family: 'Outfit', sans-serif;
+    font-size: .95rem; line-height: 1.5; outline: none; transition: .2s;
+  }
+  .assist-textarea::placeholder { color: #777; }
+  .assist-textarea:focus { border-color: var(--pink); background: rgba(232,51,110,0.06); }
+
   /* botão flutuante para reabrir */
   .assist-float {
     position: fixed; bottom: 28px; left: 24px; z-index: 9998;
-    display: flex; align-items: center; gap: 0; background: var(--pink);
+    display: inline-flex; align-items: center; gap: 0; background: var(--pink);
     border: none; cursor: pointer; border-radius: 50px;
-    box-shadow: 0 4px 20px rgba(232,51,110,0.45); overflow: hidden;
-    max-width: 52px; height: 52px; transition: max-width .3s cubic-bezier(.34,1.56,.64,1);
+    height: 52px; overflow: hidden;
+    box-shadow: 0 4px 20px rgba(232,51,110,0.45);
+    transform-origin: center; will-change: transform;
+    animation: floatShake 3.2s ease-in-out infinite, floatGlow 2.2s ease-in-out infinite;
   }
-  .assist-float:hover { max-width: 240px; }
-  .assist-float .af-ic { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
-  .assist-float .af-tx { color: #fff; font-weight: 700; font-size: .82rem; white-space: nowrap; padding-right: 20px; opacity: 0; transition: opacity .2s .1s; }
-  .assist-float:hover .af-tx { opacity: 1; }
+  .assist-float:hover {
+    animation: none; transform: scale(1.06); background: var(--pink-light);
+    box-shadow: 0 6px 32px rgba(232,51,110,0.85);
+  }
+  .assist-float .af-ic { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+  .assist-float .af-tx { color: #fff; font-weight: 700; font-size: .85rem; white-space: nowrap; padding-right: 22px; }
+
+  @keyframes floatShake {
+    0%   { transform: rotate(0) translateX(0); }
+    2%   { transform: rotate(-7deg) translateX(-3px); }
+    4%   { transform: rotate(6deg)  translateX(3px); }
+    6%   { transform: rotate(-6deg) translateX(-3px); }
+    8%   { transform: rotate(5deg)  translateX(2px); }
+    10%  { transform: rotate(-4deg) translateX(-2px); }
+    12%  { transform: rotate(3deg)  translateX(1px); }
+    14%  { transform: rotate(-2deg) translateX(0); }
+    16%  { transform: rotate(0) scale(1.08); }
+    19%  { transform: rotate(0) scale(1); }
+    100% { transform: rotate(0) translateX(0); }
+  }
+  @keyframes floatGlow {
+    0%, 100% { box-shadow: 0 4px 20px rgba(232,51,110,0.45); }
+    50%      { box-shadow: 0 6px 30px rgba(232,51,110,0.9), 0 0 0 7px rgba(232,51,110,0.14); }
+  }
 
   @media (max-width: 520px) {
     .assist-options { grid-template-columns: 1fr; }
     .assist-title { font-size: 1.9rem; }
     .assist-modal { padding: 28px 20px 24px; }
     .assist-float { bottom: 20px; left: 14px; }
+    .assist-float .af-tx { font-size: .8rem; padding-right: 18px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .assist-overlay, .assist-modal, .assist-step, .assist-float { transition: none; animation: none; }
@@ -1079,9 +1114,13 @@
           title: 'Ensaio + Captação para Reels',
           items: [
             {nm: 'Locação da sala', price: price.ensaio[d], per: 'hora'},
-            {nm: 'Captação para Reels / TikTok', price: price.reelsPromo, old: price.reelsNormal, per: 'hora', note: 'Valor promocional'}
+            {nm: 'Captação para Reels / TikTok', price: price.reelsPromo, old: price.reelsNormal, note: 'Valor promocional · valor fechado'}
           ]
         })
+      },
+      outros: {
+        emoji: '✏️', nm: 'Outros', ds: 'Conta pra gente exatamente o que você precisa.',
+        custom: true
       }
     };
 
@@ -1093,7 +1132,7 @@
     ];
     function emptyMus() { return { bateria: false, teclado: false, guitarra: false, baixo: false }; }
 
-    const current = { key: null, day: null, fotos: false, nome: '', mus: emptyMus() };
+    const current = { key: null, day: null, fotos: false, nome: '', mus: emptyMus(), outros: '' };
 
     function open()  { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; renderStep1(); }
     function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
@@ -1107,7 +1146,7 @@
         + '<div class="assist-options">';
       for (const k in services) {
         const s = services[k];
-        html += '<button class="assist-opt" data-key="' + k + '">'
+        html += '<button class="assist-opt' + (s.custom ? ' wide' : '') + '" data-key="' + k + '">'
           + '<span class="ic">' + s.emoji + '</span>'
           + '<span class="nm">' + s.nm + '</span>'
           + '<span class="ds">' + s.ds + '</span></button>';
@@ -1115,7 +1154,11 @@
       html += '</div></div>';
       body.innerHTML = html;
       body.querySelectorAll('.assist-opt').forEach(b => {
-        b.onclick = () => { current.key = b.dataset.key; current.fotos = false; current.nome = ''; current.mus = emptyMus(); renderStep2(); };
+        b.onclick = () => {
+          current.key = b.dataset.key;
+          current.fotos = false; current.nome = ''; current.mus = emptyMus(); current.outros = '';
+          if (services[current.key].custom) renderOutros(); else renderStep2();
+        };
       });
     }
 
@@ -1156,9 +1199,10 @@
       }
       let total = 0, hasHora = false, allHora = true;
       items.forEach(it => { total += it.price; if (it.per === 'hora') hasHora = true; else allHora = false; });
+      const mixed   = hasHora && !allHora;
       const unit    = (hasHora && allHora) ? ' <small>/ hora</small>' : '';
       const unitTxt = (hasHora && allHora) ? ' /hora' : '';
-      return { s, r, items, total, unit, unitTxt };
+      return { s, r, items, total, unit, unitTxt, mixed };
     }
 
     function summaryHTML() {
@@ -1177,7 +1221,7 @@
           + '<span class="l-note">O valor será dito na negociação</span>'
           + '</div><div class="l-price" style="font-size:1rem;">a combinar</div></div>';
       }
-      const totalHtml = c.items.length > 1
+      const totalHtml = (c.items.length > 1 && !c.mixed)
         ? '<div class="assist-total"><span class="t-nm">Total estimado</span><span class="t-val">' + brl(c.total) + c.unit + '</span></div>'
         : '';
       return lines + totalHtml;
@@ -1192,7 +1236,13 @@
       L.push('• Dia: ' + dayLabel(current.day));
       if (sel.length > 0) L.push('• Músicos: ' + sel.map(m => m.nm).join(', ') + ' (' + sel.length + 'x R$ 180,00 = ' + brl(price.musico * sel.length) + ')');
       if (current.fotos)  L.push('• Fotos profissionais: sim (o valor será dito na negociação)');
-      L.push('• Total estimado: ' + brl(c.total) + c.unitTxt + (current.fotos ? ' + fotos (valor na negociação)' : ''));
+      if (c.mixed) {
+        c.r.items.forEach(it => {
+          L.push('• ' + it.nm + ': ' + brl(it.price) + (it.per === 'hora' ? ' /hora' : ''));
+        });
+      } else {
+        L.push('• Total estimado: ' + brl(c.total) + c.unitTxt + (current.fotos ? ' + fotos (valor na negociação)' : ''));
+      }
       L.push('Podemos agendar? 🎵');
       return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(L.join('\n'));
     }
@@ -1208,6 +1258,47 @@
         wa.classList.toggle('disabled', !nomeOk);
       }
       if (hint) hint.style.display = nomeOk ? 'none' : 'block';
+    }
+
+    function waHrefOutros() {
+      const L = [];
+      L.push('Olá! Meu nome é ' + current.nome.trim() + '. Vim pelo site do Estúdio Abba e gostaria de um orçamento:');
+      L.push('• Pedido: ' + current.outros.trim());
+      L.push('Podemos agendar? 🎵');
+      return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(L.join('\n'));
+    }
+
+    function renderOutros() {
+      body.innerHTML = '<div class="assist-step">'
+        + '<div class="assist-eyebrow">✏️ Outros</div>'
+        + '<h2 class="assist-title" id="assistTitle">O que você <span>deseja?</span></h2>'
+        + '<p class="assist-sub">Descreva o que você precisa que a gente monta seu orçamento.</p>'
+        + '<div class="assist-name"><label>Seu pedido <span class="req">*</span></label>'
+        +   '<textarea id="outrosTxt" class="assist-textarea" placeholder="Ex.: quero gravar uma música autoral com backing vocal e mixagem..."></textarea></div>'
+        + '<div class="assist-name"><label>Seu nome <span class="req">*</span></label>'
+        +   '<input type="text" id="assistNome" placeholder="Digite seu nome" autocomplete="name" value="">'
+        +   '<div class="assist-name-hint" id="nomeHint">✍️ Preencha o pedido e o seu nome para liberar o WhatsApp</div></div>'
+        + '<div class="assist-actions">'
+        +   '<a class="assist-wa disabled" id="assistWaLink" target="_blank" rel="noopener" href="#">💬 Agendar no WhatsApp</a>'
+        +   '<button class="assist-back" id="assistBk2">‹ Recomeçar</button>'
+        + '</div></div>';
+
+      const bk   = document.getElementById('assistBk2'); if (bk) bk.onclick = renderStep1;
+      const txt  = document.getElementById('outrosTxt');
+      const nome = document.getElementById('assistNome');
+
+      function refreshOutros() {
+        current.outros = txt ? txt.value : '';
+        current.nome   = nome ? nome.value : '';
+        const ok = current.outros.trim().length > 0 && current.nome.trim().length > 0;
+        const wa   = document.getElementById('assistWaLink');
+        const hint = document.getElementById('nomeHint');
+        if (wa)   { wa.href = waHrefOutros(); wa.classList.toggle('disabled', !ok); }
+        if (hint) hint.style.display = ok ? 'none' : 'block';
+      }
+      if (txt)  txt.oninput  = refreshOutros;
+      if (nome) nome.oninput = refreshOutros;
+      refreshOutros();
     }
 
     function renderResult() {
@@ -1291,7 +1382,7 @@
 </a>
 
 <!-- ── BOTÃO FLUTUANTE DO ASSISTENTE ── -->
-<button class="assist-float" id="assistFloat" title="Abrir assistente" aria-label="Abrir assistente de serviços">
+<button class="assist-float" id="assistFloat" type="button" onclick="openAssistant()" title="Abrir assistente" aria-label="Abrir assistente de serviços">
   <span class="af-ic">✨</span>
   <span class="af-tx">Monte seu orçamento</span>
 </button>
