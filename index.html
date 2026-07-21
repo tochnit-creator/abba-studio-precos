@@ -493,6 +493,171 @@
     .contact-box { grid-template-columns: 1fr; }
     .whatsapp-float { bottom: 20px; right: 16px; }
   }
+
+  /* ── ASSISTENTE INTERATIVO (MODAL) ── */
+  .assist-overlay {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(0,0,0,0.82); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; visibility: hidden;
+    transition: opacity .3s ease, visibility .3s ease;
+  }
+  .assist-overlay.open { opacity: 1; visibility: visible; }
+  .assist-modal {
+    position: relative; width: 100%; max-width: 640px;
+    max-height: 90vh; overflow-y: auto;
+    background: linear-gradient(160deg, #17101a 0%, var(--dark2) 60%);
+    border: 1px solid rgba(232,51,110,0.35);
+    border-radius: 20px; padding: 34px 30px 30px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(232,51,110,0.08);
+    transform: translateY(24px) scale(.98);
+    transition: transform .35s cubic-bezier(.34,1.4,.5,1);
+  }
+  .assist-overlay.open .assist-modal { transform: translateY(0) scale(1); }
+  .assist-close {
+    position: absolute; top: 14px; right: 16px;
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+    color: #fff; font-size: 1rem; cursor: pointer; line-height: 1;
+    display: flex; align-items: center; justify-content: center; transition: .2s;
+  }
+  .assist-close:hover { background: var(--pink); border-color: var(--pink); }
+  .assist-eyebrow {
+    font-size: .68rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--pink); margin-bottom: 8px;
+  }
+  .assist-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; line-height: 1;
+    letter-spacing: 1.5px; margin-bottom: 6px;
+  }
+  .assist-title span { color: var(--pink); }
+  .assist-sub { font-size: .85rem; color: var(--gray); margin-bottom: 24px; line-height: 1.5; }
+
+  .assist-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .assist-opt {
+    text-align: left; cursor: pointer;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(232,51,110,0.18);
+    border-radius: 14px; padding: 18px 16px; color: #fff; transition: .2s;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .assist-opt:hover { border-color: var(--pink); background: rgba(232,51,110,0.10); transform: translateY(-2px); }
+  .assist-opt .ic { font-size: 1.7rem; }
+  .assist-opt .nm { font-weight: 700; font-size: .95rem; }
+  .assist-opt .ds { font-size: .75rem; color: var(--gray); line-height: 1.4; }
+
+  .assist-days { display: flex; gap: 12px; flex-wrap: wrap; }
+  .assist-day {
+    flex: 1; min-width: 140px; cursor: pointer; text-align: center;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(232,51,110,0.18);
+    border-radius: 14px; padding: 22px 16px; color: #fff; transition: .2s;
+  }
+  .assist-day:hover { border-color: var(--pink); background: rgba(232,51,110,0.10); transform: translateY(-2px); }
+  .assist-day .d-nm { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+  .assist-day .d-ds { font-size: .72rem; color: var(--gray); }
+
+  .assist-result-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(232,51,110,0.25);
+    border-radius: 14px; padding: 8px 20px; margin-bottom: 18px;
+  }
+  .assist-line {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    padding: 14px 0; border-bottom: 1px dashed rgba(255,255,255,0.10);
+  }
+  .assist-line:last-child { border-bottom: none; }
+  .assist-line .l-nm { font-size: .88rem; font-weight: 600; }
+  .assist-line .l-note { display: block; font-size: .72rem; color: var(--gray); margin-top: 3px; font-weight: 400; }
+  .assist-line .l-price { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 1px; color: var(--pink-light); white-space: nowrap; }
+  .assist-line .l-price small { font-size: .7rem; color: var(--gray); letter-spacing: 0; font-family: 'Outfit', sans-serif; }
+  .assist-line .l-old { font-size: .8rem; color: var(--gray); text-decoration: line-through; margin-right: 6px; font-family: 'Outfit', sans-serif; }
+  .assist-total {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 4px; padding: 16px 20px; border-top: 1px solid rgba(232,51,110,0.3);
+  }
+  .assist-total .t-nm { font-size: .72rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gray); }
+  .assist-total .t-val { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 1px; color: #fff; }
+  .assist-total .t-val small { font-size: .85rem; color: var(--gray); font-family: 'Outfit', sans-serif; letter-spacing: 0; }
+  .assist-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .assist-wa {
+    flex: 1; min-width: 200px; display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: #25D366; color: #fff; padding: 15px 20px; border-radius: 12px;
+    text-decoration: none; font-weight: 700; font-size: .92rem; transition: .2s;
+  }
+  .assist-wa:hover { background: #1ebe5d; transform: translateY(-2px); }
+  .assist-back {
+    background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff;
+    padding: 15px 22px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: .85rem; transition: .2s;
+  }
+  .assist-back:hover { border-color: var(--pink); color: var(--pink); }
+  .assist-step { animation: fadeUp .4s ease both; }
+
+  /* adicionais */
+  .assist-addons { margin-bottom: 18px; }
+  .assist-addons-title { font-size: .7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: 10px; }
+  .assist-addon {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(232,51,110,0.15);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+  }
+  .assist-addon .a-nm { font-weight: 600; font-size: .9rem; }
+  .assist-addon .a-ds { font-size: .72rem; color: var(--gray); margin-top: 2px; }
+  .a-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; cursor: pointer; }
+  .a-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .a-slider { position: absolute; inset: 0; background: rgba(255,255,255,0.15); border-radius: 20px; transition: .2s; }
+  .a-slider::before { content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+  .a-switch input:checked + .a-slider { background: var(--pink); }
+  .a-switch input:checked + .a-slider::before { transform: translateX(20px); }
+  .a-step { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .a-step button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(232,51,110,0.3); background: rgba(232,51,110,0.12); color: #fff; font-size: 1.2rem; cursor: pointer; line-height: 1; transition: .2s; }
+  .a-step button:hover { background: var(--pink); border-color: var(--pink); }
+  .a-step .a-count { font-weight: 700; min-width: 20px; text-align: center; font-size: 1rem; }
+
+  /* seleção de instrumentos */
+  .mus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .mus-chip {
+    display: flex; align-items: center; gap: 9px; cursor: pointer;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(232,51,110,0.18);
+    border-radius: 10px; padding: 11px 12px; font-size: .85rem; font-weight: 600; transition: .2s;
+  }
+  .mus-chip input { accent-color: var(--pink); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+  .mus-chip:hover { border-color: var(--pink); }
+  .mus-chip.on { background: rgba(232,51,110,0.14); border-color: var(--pink); }
+  .assist-addon.col { flex-direction: column; align-items: stretch; }
+
+  /* campo de nome (obrigatório) */
+  .assist-name { margin-bottom: 16px; }
+  .assist-name label { display: block; font-size: .72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+  .assist-name label .req { color: var(--pink); }
+  .assist-name input {
+    width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(232,51,110,0.25);
+    border-radius: 12px; padding: 14px 16px; color: #fff; font-family: 'Outfit', sans-serif; font-size: .95rem; outline: none; transition: .2s;
+  }
+  .assist-name input::placeholder { color: #777; }
+  .assist-name input:focus { border-color: var(--pink); background: rgba(232,51,110,0.06); }
+  .assist-name-hint { font-size: .74rem; color: var(--pink-light); margin-top: 8px; }
+  .assist-wa.disabled { opacity: .4; pointer-events: none; filter: grayscale(.4); }
+
+  /* botão flutuante para reabrir */
+  .assist-float {
+    position: fixed; bottom: 28px; left: 24px; z-index: 9998;
+    display: flex; align-items: center; gap: 0; background: var(--pink);
+    border: none; cursor: pointer; border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(232,51,110,0.45); overflow: hidden;
+    max-width: 52px; height: 52px; transition: max-width .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .assist-float:hover { max-width: 240px; }
+  .assist-float .af-ic { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .assist-float .af-tx { color: #fff; font-weight: 700; font-size: .82rem; white-space: nowrap; padding-right: 20px; opacity: 0; transition: opacity .2s .1s; }
+  .assist-float:hover .af-tx { opacity: 1; }
+
+  @media (max-width: 520px) {
+    .assist-options { grid-template-columns: 1fr; }
+    .assist-title { font-size: 1.9rem; }
+    .assist-modal { padding: 28px 20px 24px; }
+    .assist-float { bottom: 20px; left: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .assist-overlay, .assist-modal, .assist-step, .assist-float { transition: none; animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -516,12 +681,23 @@
     <li><a href="#planos">Planos</a></li>
     <li><a href="#servicos">Serviços</a></li>
     <li><a href="#politicas">Políticas</a></li>
+    <li><a href="#" onclick="openAssistant();return false;">✨ Assistente</a></li>
     <li><a href="https://wa.me/5511945807217?text=Olá!%20Quero%20agendar%20um%20horário%20no%20Estúdio%20Abba%20🎵" target="_blank" class="nav-cta">Agendar</a></li>
   </ul>
   <div class="hamburger" id="hamburger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
   </div>
 </nav>
+
+<!-- ══════════════════════════════════════
+     ASSISTENTE INTERATIVO
+══════════════════════════════════════ -->
+<div class="assist-overlay" id="assistOverlay" role="dialog" aria-modal="true" aria-labelledby="assistTitle">
+  <div class="assist-modal">
+    <button class="assist-close" id="assistClose" aria-label="Fechar assistente">✕</button>
+    <div id="assistBody"></div>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════
      HERO — INÍCIO
@@ -845,12 +1021,280 @@
       if(a.getAttribute('href') === '#' + cur) a.classList.add('active');
     });
   });
+
+  /* ── ASSISTENTE INTERATIVO ── */
+  (function(){
+    const overlay  = document.getElementById('assistOverlay');
+    const body     = document.getElementById('assistBody');
+    const closeBtn = document.getElementById('assistClose');
+    const floatBtn = document.getElementById('assistFloat');
+    const WA = '5511945807217';
+
+    const brl = n => 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const dayLabel = d => d === 'segqui' ? 'Seg a Qui' : 'Sex a Dom';
+
+    // Preços reais da tabela do estúdio
+    const price = {
+      audio:  { segqui: 115.00, sexdom: 139.90 },
+      ensaio: { segqui: 59.90,  sexdom: 79.90  },
+      clipe: 415.00,
+      reelsNormal: 69.90,
+      reelsPromo:  49.90,
+      musico: 180.00
+    };
+
+    const services = {
+      audio: {
+        emoji: '🎙️', nm: 'Gravação de áudio', ds: 'Capte seu som com qualidade de estúdio.',
+        addons: { fotos: true, musicos: true },
+        build: d => ({
+          title: 'Gravação de Áudio',
+          items: [ {nm: 'Captação de áudio', price: price.audio[d]} ]
+        })
+      },
+      audio_clipe: {
+        emoji: '🎬', nm: 'Áudio + Videoclipe', ds: 'Som gravado e vídeo profissional editado.',
+        addons: { fotos: true, musicos: true },
+        build: d => ({
+          title: 'Áudio + Videoclipe',
+          items: [
+            {nm: 'Captação de áudio', price: price.audio[d]},
+            {nm: 'Videoclipe · câmera profissional + edição', price: price.clipe, note: 'Em até 10x sem juros'}
+          ]
+        })
+      },
+      ensaio: {
+        emoji: '🥁', nm: 'Ensaio', ds: 'Locação da sala tratada acusticamente.',
+        addons: { fotos: true, musicos: false },
+        build: d => ({
+          title: 'Ensaio · Locação da Sala',
+          items: [ {nm: 'Locação da sala', price: price.ensaio[d], per: 'hora'} ],
+          foot: '💡 Temos também planos mensais a partir de R$ 149,00.'
+        })
+      },
+      ensaio_reels: {
+        emoji: '📲', nm: 'Ensaio + Reels', ds: 'Ensaie e saia com takes prontos pra postar.',
+        addons: { fotos: true, musicos: false },
+        build: d => ({
+          title: 'Ensaio + Captação para Reels',
+          items: [
+            {nm: 'Locação da sala', price: price.ensaio[d], per: 'hora'},
+            {nm: 'Captação para Reels / TikTok', price: price.reelsPromo, old: price.reelsNormal, per: 'hora', note: 'Valor promocional'}
+          ]
+        })
+      }
+    };
+
+    const INSTRUMENTS = [
+      { k: 'bateria',  nm: 'Baterista',   ic: '🥁' },
+      { k: 'teclado',  nm: 'Tecladista',  ic: '🎹' },
+      { k: 'guitarra', nm: 'Guitarrista', ic: '🎸' },
+      { k: 'baixo',    nm: 'Baixista',    ic: '🎵' }
+    ];
+    function emptyMus() { return { bateria: false, teclado: false, guitarra: false, baixo: false }; }
+
+    const current = { key: null, day: null, fotos: false, nome: '', mus: emptyMus() };
+
+    function open()  { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; renderStep1(); }
+    function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    window.openAssistant = open;
+
+    function renderStep1() {
+      let html = '<div class="assist-step">'
+        + '<div class="assist-eyebrow">✨ Assistente Abba</div>'
+        + '<h2 class="assist-title" id="assistTitle">O que você <span>deseja?</span></h2>'
+        + '<p class="assist-sub">Escolha o serviço e monte seu orçamento na hora.</p>'
+        + '<div class="assist-options">';
+      for (const k in services) {
+        const s = services[k];
+        html += '<button class="assist-opt" data-key="' + k + '">'
+          + '<span class="ic">' + s.emoji + '</span>'
+          + '<span class="nm">' + s.nm + '</span>'
+          + '<span class="ds">' + s.ds + '</span></button>';
+      }
+      html += '</div></div>';
+      body.innerHTML = html;
+      body.querySelectorAll('.assist-opt').forEach(b => {
+        b.onclick = () => { current.key = b.dataset.key; current.fotos = false; current.nome = ''; current.mus = emptyMus(); renderStep2(); };
+      });
+    }
+
+    function renderStep2() {
+      const s = services[current.key];
+      body.innerHTML = '<div class="assist-step">'
+        + '<div class="assist-eyebrow">' + s.emoji + ' ' + s.nm + '</div>'
+        + '<h2 class="assist-title" id="assistTitle">Qual o <span>dia?</span></h2>'
+        + '<p class="assist-sub">Os valores mudam conforme o dia da semana.</p>'
+        + '<div class="assist-days">'
+        +   '<button class="assist-day" data-day="segqui"><div class="d-nm">Seg a Qui</div><div class="d-ds">Segunda à quinta</div></button>'
+        +   '<button class="assist-day" data-day="sexdom"><div class="d-nm">Sex a Dom</div><div class="d-ds">Sexta a domingo</div></button>'
+        + '</div>'
+        + '<div class="assist-actions" style="margin-top:18px;"><button class="assist-back" id="assistBk">‹ Voltar</button></div>'
+        + '</div>';
+      body.querySelector('#assistBk').onclick = renderStep1;
+      body.querySelectorAll('.assist-day').forEach(b => {
+        b.onclick = () => { current.day = b.dataset.day; renderResult(); };
+      });
+    }
+
+    // Junta itens base + músicos e calcula total numérico
+    function selectedMusicians() {
+      return INSTRUMENTS.filter(m => current.mus[m.k]);
+    }
+
+    function computeResult() {
+      const s = services[current.key];
+      const r = s.build(current.day);
+      const items = r.items.map(it => Object.assign({}, it));
+      const sel = selectedMusicians();
+      if (sel.length > 0) {
+        items.push({
+          nm: 'Músicos · ' + sel.map(m => m.nm).join(', '),
+          price: price.musico * sel.length,
+          note: sel.length + 'x R$ 180,00 cada'
+        });
+      }
+      let total = 0, hasHora = false, allHora = true;
+      items.forEach(it => { total += it.price; if (it.per === 'hora') hasHora = true; else allHora = false; });
+      const unit    = (hasHora && allHora) ? ' <small>/ hora</small>' : '';
+      const unitTxt = (hasHora && allHora) ? ' /hora' : '';
+      return { s, r, items, total, unit, unitTxt };
+    }
+
+    function summaryHTML() {
+      const c = computeResult();
+      let lines = '';
+      c.items.forEach(it => {
+        let p = '';
+        if (it.old) p += '<span class="l-old">' + brl(it.old) + '</span>';
+        p += brl(it.price) + (it.per === 'hora' ? '<small> /h</small>' : '');
+        lines += '<div class="assist-line"><div class="l-nm">' + it.nm
+          + (it.note ? '<span class="l-note">' + it.note + '</span>' : '')
+          + '</div><div class="l-price">' + p + '</div></div>';
+      });
+      if (current.fotos) {
+        lines += '<div class="assist-line"><div class="l-nm">📸 Fotos profissionais'
+          + '<span class="l-note">O valor será dito na negociação</span>'
+          + '</div><div class="l-price" style="font-size:1rem;">a combinar</div></div>';
+      }
+      const totalHtml = c.items.length > 1
+        ? '<div class="assist-total"><span class="t-nm">Total estimado</span><span class="t-val">' + brl(c.total) + c.unit + '</span></div>'
+        : '';
+      return lines + totalHtml;
+    }
+
+    function waHref() {
+      const c = computeResult();
+      const sel = selectedMusicians();
+      const L = [];
+      L.push('Olá! Meu nome é ' + current.nome.trim() + '. Vim pelo site do Estúdio Abba e gostaria de um orçamento:');
+      L.push('• Serviço: ' + c.r.title);
+      L.push('• Dia: ' + dayLabel(current.day));
+      if (sel.length > 0) L.push('• Músicos: ' + sel.map(m => m.nm).join(', ') + ' (' + sel.length + 'x R$ 180,00 = ' + brl(price.musico * sel.length) + ')');
+      if (current.fotos)  L.push('• Fotos profissionais: sim (o valor será dito na negociação)');
+      L.push('• Total estimado: ' + brl(c.total) + c.unitTxt + (current.fotos ? ' + fotos (valor na negociação)' : ''));
+      L.push('Podemos agendar? 🎵');
+      return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(L.join('\n'));
+    }
+
+    function refresh() {
+      const sum  = document.getElementById('assistSummary');
+      const wa   = document.getElementById('assistWaLink');
+      const hint = document.getElementById('nomeHint');
+      if (sum) sum.innerHTML = summaryHTML();
+      const nomeOk = current.nome.trim().length > 0;
+      if (wa) {
+        wa.href = waHref();
+        wa.classList.toggle('disabled', !nomeOk);
+      }
+      if (hint) hint.style.display = nomeOk ? 'none' : 'block';
+    }
+
+    function renderResult() {
+      const s = services[current.key];
+      const r = s.build(current.day);
+
+      let addons = '';
+      const hasFotos = s.addons && s.addons.fotos;
+      const hasMus   = s.addons && s.addons.musicos;
+      if (hasFotos || hasMus) {
+        addons += '<div class="assist-addons"><div class="assist-addons-title">➕ Adicionais (opcional)</div>';
+        if (hasFotos) {
+          addons += '<div class="assist-addon"><div><div class="a-nm">📸 Fotos profissionais</div>'
+            + '<div class="a-ds">Padrão Elite · valor na negociação</div></div>'
+            + '<label class="a-switch"><input type="checkbox" id="addFotos"' + (current.fotos ? ' checked' : '') + '><span class="a-slider"></span></label></div>';
+        }
+        if (hasMus) {
+          let chips = '';
+          INSTRUMENTS.forEach(m => {
+            chips += '<label class="mus-chip' + (current.mus[m.k] ? ' on' : '') + '" data-chip="' + m.k + '">'
+              + '<input type="checkbox" data-mus="' + m.k + '"' + (current.mus[m.k] ? ' checked' : '') + '>'
+              + '<span>' + m.ic + ' ' + m.nm + '</span></label>';
+          });
+          addons += '<div class="assist-addon col"><div><div class="a-nm">🎸 Meus músicos</div>'
+            + '<div class="a-ds">Selecione o que precisa · R$ 180,00 cada</div></div>'
+            + '<div class="mus-grid">' + chips + '</div></div>';
+        }
+        addons += '</div>';
+      }
+
+      const nameBox = '<div class="assist-name">'
+        + '<label>Seu nome <span class="req">*</span></label>'
+        + '<input type="text" id="assistNome" placeholder="Digite seu nome" autocomplete="name" value="">'
+        + '<div class="assist-name-hint" id="nomeHint">✍️ Escreva seu nome para liberar o WhatsApp</div>'
+        + '</div>';
+
+      body.innerHTML = '<div class="assist-step">'
+        + '<div class="assist-eyebrow">' + s.emoji + ' ' + dayLabel(current.day) + '</div>'
+        + '<h2 class="assist-title" id="assistTitle">' + r.title + '</h2>'
+        + '<p class="assist-sub">Monte seu orçamento. Ajuste os adicionais, informe seu nome e chame no WhatsApp com tudo pronto.</p>'
+        + '<div class="assist-result-card" id="assistSummary"></div>'
+        + (r.foot ? '<p class="assist-sub" style="margin-top:-8px;">' + r.foot + '</p>' : '')
+        + addons
+        + nameBox
+        + '<div class="assist-actions">'
+        +   '<a class="assist-wa disabled" id="assistWaLink" target="_blank" rel="noopener" href="#">💬 Agendar no WhatsApp</a>'
+        +   '<button class="assist-back" id="assistBk2">‹ Recomeçar</button>'
+        + '</div></div>';
+
+      const bk = document.getElementById('assistBk2'); if (bk) bk.onclick = renderStep1;
+      const cf = document.getElementById('addFotos');  if (cf) cf.onchange = e => { current.fotos = e.target.checked; refresh(); };
+      body.querySelectorAll('input[data-mus]').forEach(inp => {
+        inp.onchange = e => {
+          const k = e.target.dataset.mus;
+          current.mus[k] = e.target.checked;
+          const chip = body.querySelector('.mus-chip[data-chip="' + k + '"]');
+          if (chip) chip.classList.toggle('on', e.target.checked);
+          refresh();
+        };
+      });
+      const nome = document.getElementById('assistNome');
+      if (nome) nome.oninput = e => { current.nome = e.target.value; refresh(); };
+
+      refresh();
+    }
+
+    closeBtn.onclick = close;
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('open')) close(); });
+    if (floatBtn) floatBtn.onclick = open;
+
+    // Abre automaticamente ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => setTimeout(open, 500));
+    if (document.readyState !== 'loading') setTimeout(open, 500);
+  })();
 </script>
 <!-- ── FLOATING WHATSAPP ── -->
 <a href="https://wa.me/5511945807217?text=Olá!%20Quero%20agendar%20um%20horário%20no%20Estúdio%20Abba%20🎵" target="_blank" class="whatsapp-float" title="Chamar no WhatsApp">
   <div class="wf-icon">💬</div>
   <span class="wf-text">Agendar agora</span>
 </a>
+
+<!-- ── BOTÃO FLUTUANTE DO ASSISTENTE ── -->
+<button class="assist-float" id="assistFloat" title="Abrir assistente" aria-label="Abrir assistente de serviços">
+  <span class="af-ic">✨</span>
+  <span class="af-tx">Monte seu orçamento</span>
+</button>
 
 </body>
 </html>
